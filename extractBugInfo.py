@@ -20,20 +20,21 @@ def getdata(url,header,type):
     :return:
     '''
     try:
-        response = requests.post(url, headers=header)
-        response.raise_for_status()  # 检查响应状态码，如果不是 200 会抛出异常
-        data = response.json()
-        try:
-            if type==0:
-                series_data=data["data"]["chart"]["series"][0]["data"]
-            elif type==1:
-                series_data=data["data"]["chart"]["series"][5]["data"]
-            xAxis_categories= data["data"]["chart"]["xAxis"]["categories"]
-            result=dict(zip(xAxis_categories,series_data))#把数据的名字和bug数据转化为字典样式
-            return result
-        except (KeyError, IndexError):
-            print("响应数据结构不符合预期，无法提取所需数据。")
-            return None
+        with requests.Session() as session:
+            response = session.post(url, headers=header)
+            response.raise_for_status()  # 检查响应状态码，如果不是 200 会抛出异常
+            data = response.json()
+            try:
+                if type==0:
+                    series_data=data["data"]["chart"]["series"][0]["data"]
+                elif type==1:
+                    series_data=data["data"]["chart"]["series"][5]["data"]
+                xAxis_categories= data["data"]["chart"]["xAxis"]["categories"]
+                result=dict(zip(xAxis_categories,series_data))#把数据的名字和bug数据转化为字典样式
+                return result
+            except (KeyError, IndexError):
+                print("响应数据结构不符合预期，无法提取所需数据。")
+                return None
     except requests.RequestException as e:
         print(f"请求失败，错误信息: {e}")
         return None
